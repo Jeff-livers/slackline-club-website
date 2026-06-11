@@ -100,9 +100,14 @@
       font-family: var(--western-font);
       font-weight: 400;
       color: var(--text-light);
-      font-size: clamp(0.8rem, 2.2vw, 1.125rem);   /* ~18px, subtle */
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);  /* legibility over photo */
+      font-size: clamp(0.8rem, 2.2vw, 1.125rem);
       letter-spacing: 0.02em;
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(8px);
+      /* border: 1px solid #FFFFFF;  */
+      padding: 0.5em 1.2em;
+      border-radius: 50px;
     }
 
     @media (max-width: 600px) {
