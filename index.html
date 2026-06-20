@@ -67,7 +67,7 @@
 
     body {
       font-family: var(--western-font);
-      overflow: hidden;                    /* no scroll */
+      overflow: visible;
     }
 
     /* full-screen stage */
@@ -165,6 +165,64 @@
     }
 
   </style>
+
+  <style>
+    /* ── TikTok feed ── */
+    html {
+      overflow-y: auto;
+      scroll-snap-type: y mandatory;
+    }
+
+    .stage {
+      scroll-snap-align: start;
+    }
+
+    .video-panel {
+      position: relative;
+      height: 100vh;
+      height: 100dvh;
+      width: 100%;
+      overflow: hidden;
+      scroll-snap-align: start;
+    }
+
+    .panel-footer {
+      position: absolute;
+      bottom: 5vh;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3em;
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      padding: 0.6em 15px;
+      border-radius: 16px;
+      width: fit-content;
+      max-width: calc(100vw - 16px);
+      white-space: nowrap;
+    }
+
+    .video-panel .info {
+      background: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      padding: 0;
+      border-radius: 0;
+    }
+
+    .panel-title {
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 700;
+      color: var(--slackline-red);
+      white-space: nowrap;
+      text-align: center;
+      padding: 0 8px;
+    }
+  </style>
 </head>
 <body>
 
@@ -195,6 +253,79 @@
       v.style.display = 'none';
       document.getElementById('bgimg').style.display = 'block';
     });
+  </script>
+
+  <script>
+    (function () {
+      function fitTitle(el) {
+        el.style.fontSize = '100px';
+        var hPad = 30; // 15px padding each side
+        // cap at the size the title fills on a 450px viewport
+        var maxAvailable = 450 - 16 - hPad;
+        // on narrow screens, fill the viewport minus 8px each side minus padding
+        var viewportAvailable = window.innerWidth - 16 - hPad;
+        var available = Math.min(viewportAvailable, maxAvailable);
+        el.style.fontSize = (100 * available / el.scrollWidth) + 'px';
+      }
+
+      window.addEventListener('resize', function () {
+        document.querySelectorAll('.panel-title').forEach(fitTitle);
+      });
+
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          var vid = entry.target.querySelector('video');
+          if (!vid) return;
+          if (entry.isIntersecting) {
+            vid.play().catch(function () {});
+          } else {
+            vid.pause();
+            vid.currentTime = 0;
+          }
+        });
+      }, { threshold: 0.6 });
+
+      fetch('/videos.json')
+        .then(function (r) { return r.json(); })
+        .then(function (clips) {
+          clips.forEach(function (clip) {
+            var panel = document.createElement('div');
+            panel.className = 'video-panel';
+
+            var vid = document.createElement('video');
+            vid.className = 'bg';
+            vid.muted = true;
+            vid.loop = true;
+            vid.setAttribute('playsinline', '');
+            vid.setAttribute('webkit-playsinline', '');
+            vid.setAttribute('preload', 'none');
+            vid.poster = clip.poster;
+            var src = document.createElement('source');
+            src.src = clip.src;
+            src.type = 'video/mp4';
+            vid.appendChild(src);
+
+            var footer = document.createElement('div');
+            footer.className = 'panel-footer';
+
+            var title = document.createElement('div');
+            title.className = 'panel-title';
+            title.textContent = 'Salida Slackline Club';
+
+            var info = document.createElement('div');
+            info.className = 'info';
+            info.textContent = 'Thursdays, 6:00pm at Thonhoff Park';
+
+            footer.appendChild(title);
+            footer.appendChild(info);
+            panel.appendChild(vid);
+            panel.appendChild(footer);
+            document.body.appendChild(panel);
+            fitTitle(title);
+            observer.observe(panel);
+          });
+        });
+    })();
   </script>
 </body>
 </html>
