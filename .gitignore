@@ -1,0 +1,7 @@
+# Raw + compressed videos live on Cloudflare R2, not in the repo
+Images/*.mp4
+r2-upload/
+
+# macOS cruft
+.DS_Store
+**/.DS_Store

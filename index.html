@@ -228,14 +228,50 @@
       text-align: center;
       padding: 0 8px;
     }
+
+    /* subtle tap-to-play affordance — only shown while a clip's poster is up
+       (e.g. iOS Low Power Mode blocks autoplay). Hidden whenever the clip plays. */
+    .play-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      width: 72px;
+      height: 72px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      cursor: pointer;
+      display: none;                 /* shown via .is-paused on the panel */
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s ease;
+      opacity: 0.85;
+    }
+    .play-btn::before {
+      content: "";
+      display: block;
+      width: 0;
+      height: 0;
+      margin-left: 5px;              /* optically center the triangle */
+      border-style: solid;
+      border-width: 13px 0 13px 22px;
+      border-color: transparent transparent transparent #fff;
+    }
+    .video-panel.is-paused .play-btn {
+      display: flex;
+    }
   </style>
 </head>
 <body>
 
   <div class="stage">
 
-    <video id="bgvid" class="bg" autoplay muted loop playsinline webkit-playsinline poster="Images/THonhoff park copy.jpg">
-      <source src="Images/IMG_3368.mp4" type="video/mp4" />
+    <video id="bgvid" class="bg" autoplay muted loop playsinline webkit-playsinline poster="Images/posters/hero.jpg">
+      <source src="https://videos.salidaslacklineclub.com/hero.mp4" type="video/mp4" />
     </video>
     <img id="bgimg" class="bg" src="Images/hero-background-mobile.jpeg" alt="Thonhoff Park, Salida" style="display:none" />
 
@@ -278,15 +314,56 @@
         document.querySelectorAll('.panel-title').forEach(fitTitle);
       });
 
+      var panels = [];          // { panel, vid } in document order
+      var unlocked = false;
+
+      function inView(panel) {
+        var r = panel.getBoundingClientRect();
+        var mid = window.innerHeight / 2;
+        return r.top < mid && r.bottom > mid;
+      }
+
+      // Attempt playback; toggle the panel's tap-to-play button based on success.
+      function tryPlay(p) {
+        var pr = p.vid.play();
+        if (pr && pr.then) {
+          pr.then(function () { p.panel.classList.remove('is-paused'); })
+            .catch(function () { p.panel.classList.add('is-paused'); });
+        }
+      }
+
+      // First user gesture (e.g. tapping a play button in iOS Low Power Mode)
+      // unlocks every feed video so scroll-autoplay works for the rest too.
+      function unlockAll() {
+        if (unlocked) return;
+        unlocked = true;
+        panels.forEach(function (p) {
+          var pr = p.vid.play();
+          if (pr && pr.then) {
+            pr.then(function () {
+              if (!inView(p.panel)) { p.vid.pause(); p.vid.currentTime = 0; }
+            }).catch(function () {});
+          }
+        });
+      }
+
       var observer = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
-          var vid = entry.target.querySelector('video');
-          if (!vid) return;
+          var idx = +entry.target.dataset.idx;
+          var p = panels[idx];
+          if (!p) return;
           if (entry.isIntersecting) {
-            vid.play().catch(function () {});
+            tryPlay(p);
+            // warm up the next clip so it's instant on snap
+            var next = panels[idx + 1];
+            if (next && next.vid.preload !== 'auto') {
+              next.vid.preload = 'auto';
+              next.vid.load();
+            }
           } else {
-            vid.pause();
-            vid.currentTime = 0;
+            p.vid.pause();
+            p.vid.currentTime = 0;
+            p.panel.classList.remove('is-paused');
           }
         });
       }, { threshold: 0.6 });
@@ -294,9 +371,10 @@
       fetch('/videos.json')
         .then(function (r) { return r.json(); })
         .then(function (clips) {
-          clips.forEach(function (clip) {
+          clips.forEach(function (clip, i) {
             var panel = document.createElement('div');
             panel.className = 'video-panel';
+            panel.dataset.idx = i;
 
             var vid = document.createElement('video');
             vid.className = 'bg';
@@ -310,6 +388,16 @@
             src.src = clip.src;
             src.type = 'video/mp4';
             vid.appendChild(src);
+
+            var p = { panel: panel, vid: vid };
+
+            var btn = document.createElement('button');
+            btn.className = 'play-btn';
+            btn.setAttribute('aria-label', 'Play video');
+            btn.addEventListener('click', function () {
+              unlockAll();
+              tryPlay(p);
+            });
 
             var footer = document.createElement('div');
             footer.className = 'panel-footer';
@@ -325,9 +413,11 @@
             footer.appendChild(title);
             footer.appendChild(info);
             panel.appendChild(vid);
+            panel.appendChild(btn);
             panel.appendChild(footer);
             document.body.appendChild(panel);
             fitTitle(title);
+            panels.push(p);
             observer.observe(panel);
           });
         });
