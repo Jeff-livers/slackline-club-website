@@ -49,10 +49,9 @@
 
     :root {
       --slackline-red: #8A2C2C;            /* muted maroon — tweak freely */
-      --text-dark: #000000;                /* Salida + Club */
       --text-light: #FFFFFF;               /* bottom info line */
       --display-font: 'Anton', sans-serif;   /*SLACKLINE — placeholder, swap later*/
-      --western-font: 'roboto mono', serif;       /* Salida + Club — placeholder, swap later */
+      --western-font: 'roboto mono', serif;
     }
 
     * {
@@ -107,14 +106,6 @@
       width: 100%;
     }
 
-    .salida {
-      font-family: var(--western-font);
-      font-weight: 700;
-      color: var(--text-dark);
-      font-size: clamp(1.4rem, 5vw, 4rem);
-      line-height: 1;
-    }
-
     .title-img {
       display: block;
       width: clamp(240px, 80vw, 700px);
@@ -122,12 +113,8 @@
       margin: 0 auto;
     }
 
-    .club {
-      font-family: var(--western-font);
-      font-weight: 700;
-      color: var(--text-dark);
-      font-size: clamp(1.4rem, 5vw, 4rem);
-      line-height: 1;
+    .salida-img, .club-img {
+      width: clamp(120px, 40vw, 220px);
     }
 
     .info {
@@ -151,11 +138,11 @@
         padding-left: 0;
         padding-right: 0;
       }
-      .salida, .club {
-        font-size: clamp(2rem, 10vw, 4rem);
-      }
       .title-img {
         width: clamp(200px, 78vw, 400px);
+      }
+      .salida-img, .club-img {
+        width: clamp(100px, 38vw, 200px);
       }
       .info {
         font-size: clamp(1rem, 4vw, 1.125rem);
@@ -276,9 +263,9 @@
     <div class="content">
 
       <div class="title">
-        <div class="salida">Salida</div>
+        <img src="Images/salida-title.png" alt="Salida" class="title-img salida-img" />
         <img src="Images/Title Image.png" alt="Slackline" class="title-img" />
-        <div class="club">Club</div>
+        <img src="Images/club-title.png" alt="Club" class="title-img club-img" />
       </div>
 
       <div class="info">Thursdays, 6:00pm at Thonhoff Park</div>
