@@ -115,13 +115,11 @@
       line-height: 1;
     }
 
-    .slackline {
-      font-family: var(--display-font);
-      color: var(--slackline-red);
-      font-size: clamp(2.5rem, 14vw, 13rem);  /* spans full width — re-tune vw if font changes */
-      line-height: 0.95;
-      letter-spacing: 0.01em;
-      text-transform: uppercase;
+    .title-img {
+      display: block;
+      width: clamp(240px, 80vw, 700px);
+      max-width: 100%;
+      margin: 0 auto;
     }
 
     .club {
@@ -156,8 +154,8 @@
       .salida, .club {
         font-size: clamp(2rem, 10vw, 4rem);
       }
-      .slackline {
-        font-size: clamp(5.5rem, 20vw, 18rem);
+      .title-img {
+        width: clamp(200px, 78vw, 400px);
       }
       .info {
         font-size: clamp(1rem, 4vw, 1.125rem);
@@ -223,7 +221,7 @@
     .panel-title {
       font-family: 'Roboto Mono', monospace;
       font-weight: 700;
-      color: var(--slackline-red);
+      color: #e06079;
       white-space: nowrap;
       text-align: center;
       padding: 0 8px;
@@ -279,7 +277,7 @@
 
       <div class="title">
         <div class="salida">Salida</div>
-        <h1 class="slackline">Slackline</h1>
+        <img src="Images/Title Image.png" alt="Slackline" class="title-img" />
         <div class="club">Club</div>
       </div>
 
