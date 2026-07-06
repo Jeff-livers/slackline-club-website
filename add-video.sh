@@ -22,7 +22,7 @@ echo "==> Compressing  $input  ->  $out"
 ffmpeg -y -i "$input" \
   -vf "scale='min(1080,iw)':-2" \
   -c:v libx264 -profile:v high -crf 24 -preset slow \
-  -movflags +faststart -an \
+  -movflags +faststart -c:a aac -b:a 128k \
   "$out" </dev/null
 
 echo "==> Poster       $out  ->  $poster"
