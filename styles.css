@@ -1,0 +1,227 @@
+:root {
+  --text-light: #ffffff;
+  --title-pink: #e06079;
+  --font-body: 'Roboto Mono', monospace;
+  --overlay: rgba(0, 0, 0, 0.25);
+  --overlay-strong: rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+html {
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+/* Full-viewport panels: the hero and every video clip fill one screen and snap. */
+.stage,
+.video-panel {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  scroll-snap-align: start;
+}
+
+.bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+/* Hero */
+.content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5vh 2vw;
+  text-align: center;
+}
+
+.title {
+  width: 100%;
+}
+
+.title-img {
+  display: block;
+  width: clamp(240px, 80vw, 700px);
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.salida-img,
+.club-img {
+  width: clamp(120px, 40vw, 220px);
+}
+
+.info {
+  color: var(--text-light);
+  font-size: clamp(0.8rem, 2.2vw, 1.125rem);
+  letter-spacing: 0.02em;
+  background: var(--overlay);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  padding: 0.5em 1.2em;
+  border-radius: 50px;
+}
+
+/* Video feed */
+.panel-bottom {
+  position: absolute;
+  bottom: 5vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.panel-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3em;
+  background: var(--overlay);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  padding: 0.6em 15px;
+  border-radius: 16px;
+  width: fit-content;
+  max-width: calc(100vw - 66px);
+  white-space: nowrap;
+}
+
+.video-panel .info {
+  background: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: 0;
+  border-radius: 0;
+  white-space: nowrap;
+}
+
+.panel-title {
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: var(--title-pink);
+  white-space: nowrap;
+  text-align: center;
+  padding: 0 8px;
+}
+
+.play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  width: 72px;
+  height: 72px;
+  border: none;
+  border-radius: 50%;
+  background: var(--overlay-strong);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+  opacity: 0.85;
+}
+
+.play-btn::before {
+  content: "";
+  display: block;
+  width: 0;
+  height: 0;
+  margin-left: 5px;
+  border-style: solid;
+  border-width: 13px 0 13px 22px;
+  border-color: transparent transparent transparent #fff;
+}
+
+.video-panel.is-paused .play-btn {
+  display: flex;
+}
+
+.sound-btn {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: var(--overlay-strong);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.sound-btn svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.sound-btn .icon-on {
+  display: none;
+}
+
+.sound-btn.is-on .icon-on {
+  display: block;
+}
+
+.sound-btn.is-on .icon-off {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .stage .bg {
+    object-position: 35% center;
+  }
+
+  .content {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .title-img {
+    width: clamp(200px, 78vw, 400px);
+  }
+
+  .salida-img,
+  .club-img {
+    width: clamp(100px, 38vw, 200px);
+  }
+
+  .info {
+    font-size: clamp(1rem, 4vw, 1.125rem);
+  }
+}
