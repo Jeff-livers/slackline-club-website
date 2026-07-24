@@ -83,3 +83,22 @@ Clip files are **not** in the repo (`.gitignore` excludes `Images/*.mp4` and
 `videos.salidaslacklineclub.com`. Posters (`Images/posters/*.jpg`) are committed.
 `videos.json` maps each clip's hosted `src` to its committed poster; the feed renders
 in that array's order. See `ADDING_VIDEOS.md` for the upload workflow.
+
+## Loading performance (slow connections)
+
+The feed has to feel snappy on a weak phone signal. A July 2026 pass fixed a
+regression and set the direction going forward:
+
+- **The music must not preload.** The site-wide song's `<audio>` uses
+  `preload="none"` — with `preload="auto"` the browser eagerly pulled the whole
+  ~4 MB MP3 on page load, saturating a slow connection so the videos never buffered.
+  It now loads only when someone taps unmute (`toggleSound` triggers the fetch).
+- **Clips stay plain single-file MP4s — no adaptive/HLS streaming.** That's the "real"
+  way to survive bad signal, but it's overkill for a small club site. Instead we just
+  keep the files small: hero at 720p, feed clips at CRF 28, encoded from the raw
+  originals. Speed is prioritized over sharpness — this is casual slackline footage,
+  not a feature film.
+- **When re-encoding, resolution is the lever, not frame rate.** CRF is a *quality*
+  target, not a size target, so cutting fps doesn't shrink a CRF-encoded file (each
+  remaining frame just spans more motion and costs more bits). Drop resolution to save
+  size. See `compress-videos.sh` / `add-video.sh` for the encode recipe.
