@@ -109,6 +109,14 @@
     syncSoundButtons();
   }
 
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      music.pause();
+    } else if (musicOn) {
+      music.play().catch(function () {});
+    }
+  });
+
   function makeSoundButton() {
     var btn = document.createElement('button');
     btn.className = 'sound-btn';
