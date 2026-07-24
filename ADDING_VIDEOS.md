@@ -6,6 +6,14 @@ The website just lists them in [videos.json](videos.json).
 
 So adding a clip is 4 things: **compress it → upload it to R2 → list it in `videos.json` → push.**
 
+> ⚠️ **Always run clips through `./add-video.sh` — never hand-make or hand-convert an MP4.**
+> The script automatically adds "fast start," which moves the video's tiny index (the
+> `moov` atom) to the front of the file. That's what lets a browser start playing
+> immediately instead of downloading the whole file first. A video made any other way
+> can land with that index at the *end*, and it'll just spin at 0:00 forever (this is
+> exactly what happened to `taylor.mp4`). If you ever hit a stuck video, that's the cause —
+> re-run it through the script and re-upload.
+
 ---
 
 ## One-time setup (only if it's a new computer)
@@ -19,12 +27,48 @@ brew install ffmpeg
 
 ---
 
+## Never used Terminal / a `.sh` script? Start here
+
+A `.sh` file (`add-video.sh`) is just a **text file full of terminal commands**, run top
+to bottom. Instead of typing several `ffmpeg` commands by hand every time, you run the one
+file and it does them for you. You can open it and read it — nothing is hidden or compiled.
+
+**To run it:**
+
+1. **Open Terminal.** Press `Cmd+Space`, type `Terminal`, hit Enter. (It's built into every Mac.)
+
+2. **Go to the project folder** (this tells Terminal where you are). Paste this line and hit Enter:
+   ```bash
+   cd "/Users/jefflivers/Documents/Personal Projects/Slackline Club/slackline-club-website"
+   ```
+   `cd` = "change directory." The quotes matter because the folder names have spaces.
+
+3. **Run the script**, giving it your video and a slug:
+   ```bash
+   ./add-video.sh ~/Desktop/my-clip.mov taylor
+   ```
+   - `./` = "the script is right here in this folder" (without it you'll get *command not found*).
+   - `~/Desktop/my-clip.mov` = your input video. `~` means your home folder, so this is your Desktop.
+   - `taylor` = the slug (short lowercase name it saves the file as).
+
+**If you ever see `permission denied`:** the file just needs to be marked as runnable. Do this
+once and it sticks:
+```bash
+chmod +x add-video.sh
+```
+`chmod +x` = "allow this file to run." You only ever need it once per script.
+
+That's the whole thing — open Terminal, `cd` into the folder, run `./add-video.sh`. Nothing
+gets installed and nothing is hidden.
+
+---
+
 ## Add a NEW clip
 
 ### 1. Compress it + make a poster (one command)
 
 From the project folder, run the helper script with your video and a **slug**
-(a short lowercase name, no spaces — it becomes the filename and the URL):
+(a short lowercase name, no spaces — it becomes the fyilename and the URL):
 
 ```bash
 ./add-video.sh ~/Desktop/your-new-clip.mov sarah-highline

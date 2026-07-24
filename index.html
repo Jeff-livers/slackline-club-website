@@ -171,12 +171,19 @@
       scroll-snap-align: start;
     }
 
-    .panel-footer {
+    /* groups the title pill + sound button, pinned bottom-center */
+    .panel-bottom {
       position: absolute;
       bottom: 5vh;
       left: 50%;
       transform: translateX(-50%);
       z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .panel-footer {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -187,7 +194,7 @@
       padding: 0.6em 15px;
       border-radius: 16px;
       width: fit-content;
-      max-width: calc(100vw - 16px);
+      max-width: calc(100vw - 68px);
       white-space: nowrap;
     }
 
@@ -249,9 +256,40 @@
     .video-panel.is-paused .play-btn {
       display: flex;
     }
+
+    /* TikTok-style sound toggle, sitting next to the title pill on each clip.
+       It only exists on the video panels, so it's absent on the hero (page 1)
+       and appears once you scroll to the first clip. Videos autoplay muted
+       (browser rule); tapping this is the user gesture that unlocks sound. */
+    .sound-btn {
+      flex: 0 0 auto;
+      width: 52px;
+      height: 52px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    .sound-btn svg { width: 22px; height: 22px; display: block; }
+    .sound-btn .icon-on { display: none; }
+    .sound-btn.is-on .icon-on { display: block; }
+    .sound-btn.is-on .icon-off { display: none; }
   </style>
 </head>
 <body>
+
+  <!-- Site-wide background song. Starts when the unmute button is pressed and
+       plays over the whole site (not tied to any video). Swap the file in
+       /music/ to change the song. -->
+  <audio id="feedmusic" loop preload="auto">
+    <source src="/music/feed-music.mp3" type="audio/mpeg" />
+  </audio>
 
   <div class="stage">
 
@@ -284,23 +322,29 @@
 
   <script>
     (function () {
+      // Size the title to fill the pill, reserving room to its right for the
+      // sound button (52px) plus the 12px gap.
       function fitTitle(el) {
         el.style.fontSize = '100px';
-        var hPad = 30; // 15px padding each side
+        var hPad = 30;       // 15px padding each side of the pill
+        var btnSpace = 64;   // sound button (52) + gap (12)
         // cap at the size the title fills on a 450px viewport
-        var maxAvailable = 450 - 16 - hPad;
-        // on narrow screens, fill the viewport minus 8px each side minus padding
-        var viewportAvailable = window.innerWidth - 16 - hPad;
+        var maxAvailable = 450 - 16 - btnSpace - hPad;
+        // on narrow screens, fill the viewport minus 8px each side, the button, and padding
+        var viewportAvailable = window.innerWidth - 16 - btnSpace - hPad;
         var available = Math.min(viewportAvailable, maxAvailable);
         el.style.fontSize = (100 * available / el.scrollWidth) + 'px';
       }
 
       window.addEventListener('resize', function () {
-        document.querySelectorAll('.panel-title').forEach(fitTitle);
+        document.querySelectorAll('.panel-title').forEach(function (t) { fitTitle(t); });
       });
 
       var panels = [];          // { panel, vid } in document order
       var unlocked = false;
+      var soundBtns = [];       // one unmute button per clip, kept in sync
+      var music = document.getElementById('feedmusic');
+      var musicOn = false;      // is the site-wide song playing?
 
       function inView(panel) {
         var r = panel.getBoundingClientRect();
@@ -309,6 +353,7 @@
       }
 
       // Attempt playback; toggle the panel's tap-to-play button based on success.
+      // Videos always play muted — sound comes from the site-wide song, not clips.
       function tryPlay(p) {
         var pr = p.vid.play();
         if (pr && pr.then) {
@@ -352,6 +397,51 @@
           }
         });
       }, { threshold: 0.6 });
+
+      var SOUND_ICONS =
+        '<svg class="icon-off" viewBox="0 0 24 24" aria-hidden="true">' +
+          '<path fill="#fff" d="M3 9v6h4l5 5V4L7 9H3z"/>' +
+          '<path d="M16 9l5 6M21 9l-5 6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+        '</svg>' +
+        '<svg class="icon-on" viewBox="0 0 24 24" aria-hidden="true">' +
+          '<path fill="#fff" d="M3 9v6h4l5 5V4L7 9H3z"/>' +
+          '<path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 6a8 8 0 0 1 0 12" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+        '</svg>';
+
+      // Keep every clip's button showing the same (global) music state.
+      function syncSoundButtons() {
+        soundBtns.forEach(function (b) {
+          b.classList.toggle('is-on', musicOn);
+          b.setAttribute('aria-label', musicOn ? 'Mute' : 'Unmute');
+        });
+      }
+
+      // Toggle the site-wide song. The tap itself is the user gesture that lets
+      // the audio start; it then plays over the whole site until pressed again.
+      function toggleSound() {
+        musicOn = !musicOn;
+        if (musicOn) {
+          var pr = music.play();
+          if (pr && pr.then) {
+            pr.catch(function () { musicOn = false; syncSoundButtons(); });
+          }
+        } else {
+          music.pause();
+        }
+        syncSoundButtons();
+      }
+
+      // Build a sound button for one clip's footer.
+      function makeSoundButton() {
+        var b = document.createElement('button');
+        b.className = 'sound-btn';
+        b.setAttribute('aria-label', 'Unmute');
+        b.innerHTML = SOUND_ICONS;
+        b.classList.toggle('is-on', musicOn);
+        b.addEventListener('click', toggleSound);
+        soundBtns.push(b);
+        return b;
+      }
 
       fetch('/videos.json')
         .then(function (r) { return r.json(); })
@@ -397,9 +487,16 @@
 
             footer.appendChild(title);
             footer.appendChild(info);
+
+            // bottom bar: the title pill with the sound button beside it
+            var bottom = document.createElement('div');
+            bottom.className = 'panel-bottom';
+            bottom.appendChild(footer);
+            bottom.appendChild(makeSoundButton());
+
             panel.appendChild(vid);
             panel.appendChild(btn);
-            panel.appendChild(footer);
+            panel.appendChild(bottom);
             document.body.appendChild(panel);
             fitTitle(title);
             panels.push(p);
