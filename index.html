@@ -194,7 +194,8 @@
       padding: 0.6em 15px;
       border-radius: 16px;
       width: fit-content;
-      max-width: calc(100vw - 68px);
+      /* button (44) + gap (12) + 5px breathing room each side of the group */
+      max-width: calc(100vw - 66px);
       white-space: nowrap;
     }
 
@@ -204,16 +205,14 @@
       -webkit-backdrop-filter: none;
       padding: 0;
       border-radius: 0;
+      /* stays one line; JS (fitInfo) shrinks the font so it always fits the pill */
+      white-space: nowrap;
     }
 
     @media (max-width: 600px) {
       .video-panel .bg {
         object-position: center;
       }
-      /* smaller sound button on phones so the title pill keeps its room */
-      .sound-btn { width: 44px; height: 44px; }
-      .sound-btn svg { width: 18px; height: 18px; }
-      .panel-footer { max-width: calc(100vw - 60px); }
     }
 
     .panel-title {
@@ -267,8 +266,8 @@
        (browser rule); tapping this is the user gesture that unlocks sound. */
     .sound-btn {
       flex: 0 0 auto;
-      width: 52px;
-      height: 52px;
+      width: 44px;
+      height: 44px;
       border: none;
       border-radius: 50%;
       background: rgba(0, 0, 0, 0.35);
@@ -280,7 +279,7 @@
       justify-content: center;
       padding: 0;
     }
-    .sound-btn svg { width: 22px; height: 22px; display: block; }
+    .sound-btn svg { width: 18px; height: 18px; display: block; }
     .sound-btn .icon-on { display: none; }
     .sound-btn.is-on .icon-on { display: block; }
     .sound-btn.is-on .icon-off { display: none; }
@@ -327,11 +326,11 @@
   <script>
     (function () {
       // Size the title to fill the pill, reserving room to its right for the
-      // sound button (52px) plus the 12px gap.
+      // sound button (44px) plus the 12px gap.
       function fitTitle(el) {
         el.style.fontSize = '100px';
         var hPad = 30;       // 15px padding each side of the pill
-        var btnSpace = 64;   // sound button (52) + gap (12)
+        var btnSpace = 56;   // sound button (44) + gap (12)
         // cap at the size the title fills on a 450px viewport
         var maxAvailable = 450 - 16 - btnSpace - hPad;
         // on narrow screens, fill the viewport minus 8px each side, the button, and padding
@@ -340,8 +339,20 @@
         el.style.fontSize = (100 * available / el.scrollWidth) + 'px';
       }
 
+      // Same idea for the date/location line, but capped at 18px so it stays
+      // smaller than the title and never wraps or overflows the pill.
+      function fitInfo(el) {
+        el.style.fontSize = '100px';
+        var hPad = 30;       // 15px padding each side of the pill
+        var btnSpace = 56;   // sound button (44) + gap (12)
+        var available = window.innerWidth - 16 - btnSpace - hPad;
+        var fit = 100 * available / el.scrollWidth;
+        el.style.fontSize = Math.min(fit, 18) + 'px';
+      }
+
       window.addEventListener('resize', function () {
         document.querySelectorAll('.panel-title').forEach(function (t) { fitTitle(t); });
+        document.querySelectorAll('.video-panel .info').forEach(function (i) { fitInfo(i); });
       });
 
       var panels = [];          // { panel, vid } in document order
@@ -503,6 +514,7 @@
             panel.appendChild(bottom);
             document.body.appendChild(panel);
             fitTitle(title);
+            fitInfo(info);
             panels.push(p);
             observer.observe(panel);
           });
