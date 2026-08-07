@@ -87,6 +87,38 @@ body {
   border-radius: 50px;
 }
 
+.hero-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.scroll-cue {
+  width: 40px;
+  color: var(--text-light);
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+  animation: scroll-cue-flash 1.8s ease-in-out infinite;
+}
+
+.scroll-cue svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@keyframes scroll-cue-flash {
+  0%, 100% { opacity: 1; transform: translateY(0); }
+  50% { opacity: 0.15; transform: translateY(5px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
 /* Video feed */
 .panel-bottom {
   position: absolute;
