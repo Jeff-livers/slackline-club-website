@@ -50,7 +50,6 @@
 
   var panels = [];
   var soundButtons = [];
-  var unlocked = false;
 
   var music = document.getElementById('feedmusic');
   var musicOn = false;
@@ -62,6 +61,7 @@
   }
 
   function tryPlay(p) {
+    if (!p.attached) attach(p);
     var pending = p.vid.play();
     if (pending && pending.then) {
       pending
@@ -70,19 +70,36 @@
     }
   }
 
-  function unlockAll() {
-    if (unlocked) return;
-    unlocked = true;
-    panels.forEach(function (p) {
-      var pending = p.vid.play();
-      if (pending && pending.then) {
-        pending.then(function () {
-          if (!inView(p.panel)) {
-            p.vid.pause();
-            p.vid.currentTime = 0;
-          }
-        }).catch(function () {});
-      }
+  // Browsers cap how many videos can buffer/decode at once, so only the panel in
+  // view and its immediate neighbours keep a source attached. The rest fall back
+  // to their poster until they come back into range.
+  var SOURCE_WINDOW = 1;
+
+  function attach(p) {
+    if (p.attached) return;
+    var source = document.createElement('source');
+    source.src = p.src;
+    source.type = 'video/mp4';
+    p.vid.appendChild(source);
+    p.vid.preload = 'auto';
+    p.vid.load();
+    p.attached = true;
+  }
+
+  function detach(p) {
+    if (!p.attached) return;
+    p.vid.pause();
+    while (p.vid.firstChild) p.vid.removeChild(p.vid.firstChild);
+    p.vid.removeAttribute('src');
+    p.vid.load();
+    p.attached = false;
+    p.panel.classList.remove('is-paused');
+  }
+
+  function windowAround(idx) {
+    panels.forEach(function (p, i) {
+      if (Math.abs(i - idx) <= SOURCE_WINDOW) attach(p);
+      else detach(p);
     });
   }
 
@@ -134,13 +151,9 @@
       var p = panels[idx];
       if (!p) return;
       if (entry.isIntersecting) {
+        windowAround(idx);
         tryPlay(p);
-        var next = panels[idx + 1];
-        if (next && next.vid.preload !== 'auto') {
-          next.vid.preload = 'auto';
-          next.vid.load();
-        }
-      } else {
+      } else if (p.attached) {
         p.vid.pause();
         p.vid.currentTime = 0;
         p.panel.classList.remove('is-paused');
@@ -161,18 +174,14 @@
     vid.setAttribute('playsinline', '');
     vid.setAttribute('webkit-playsinline', '');
     vid.setAttribute('preload', 'none');
-    var source = document.createElement('source');
-    source.src = clip.src;
-    source.type = 'video/mp4';
-    vid.appendChild(source);
 
-    var p = { panel: panel, vid: vid };
+    var p = { panel: panel, vid: vid, src: clip.src, attached: false };
 
     var playBtn = document.createElement('button');
     playBtn.className = 'play-btn';
     playBtn.setAttribute('aria-label', 'Play video');
     playBtn.addEventListener('click', function () {
-      unlockAll();
+      attach(p);
       tryPlay(p);
     });
 
