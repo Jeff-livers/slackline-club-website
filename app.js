@@ -52,6 +52,7 @@
   var soundButtons = [];
 
   var music = document.getElementById('feedmusic');
+  music.volume = 0.85;
   var musicOn = false;
 
   function inView(panel) {
