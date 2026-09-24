@@ -59,7 +59,30 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 5vh 2vw;
+  /* On mobile the keyboard overlays the viewport without resizing it, so pad the
+     bottom by however much it covers (set by newsletter.js) to lift the form up. */
+  padding-bottom: calc(5vh + var(--kb-inset, 0px));
   text-align: center;
+  transition: padding-bottom 0.2s ease;
+}
+
+/* While the keyboard is up, give the form the room by trimming the hero art. */
+.keyboard-open .scroll-cue {
+  display: none;
+}
+
+.keyboard-open .title-img {
+  width: clamp(140px, 30vw, 560px);
+}
+
+.keyboard-open .salida-img,
+.keyboard-open .club-img {
+  width: clamp(70px, 15vw, 180px);
+}
+
+/* Snapping fights the browser's attempt to keep the focused field visible. */
+.keyboard-open {
+  scroll-snap-type: none;
 }
 
 .title {

@@ -8,6 +8,37 @@
   const buttonDefaultText = button.textContent;
   const emailInput = document.getElementById('newsletter-email');
 
+  // iOS/Android overlay the keyboard on top of the viewport instead of resizing
+  // it, and the hero is an overflow:hidden 100dvh panel, so a focused field near
+  // the bottom just gets covered. Measure the covered strip and hand it to CSS.
+  const vv = window.visualViewport;
+  if (vv && emailInput) {
+    const root = document.documentElement;
+
+    const syncKeyboardInset = () => {
+      const covered = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      root.style.setProperty('--kb-inset', covered + 'px');
+      root.classList.toggle('keyboard-open', covered > 100);
+      if (covered > 100) window.scrollTo(0, 0);
+    };
+
+    const clearKeyboardInset = () => {
+      root.style.setProperty('--kb-inset', '0px');
+      root.classList.remove('keyboard-open');
+    };
+
+    emailInput.addEventListener('focus', () => {
+      // The keyboard animates in, so the first measurement lands after a beat.
+      setTimeout(syncKeyboardInset, 100);
+      setTimeout(syncKeyboardInset, 400);
+    });
+    emailInput.addEventListener('blur', clearKeyboardInset);
+    vv.addEventListener('resize', () => {
+      if (document.activeElement === emailInput) syncKeyboardInset();
+      else clearKeyboardInset();
+    });
+  }
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     error.hidden = true;
