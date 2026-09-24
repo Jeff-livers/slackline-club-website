@@ -24,6 +24,12 @@ html {
   scroll-snap-type: y mandatory;
 }
 
+/* Mandatory snapping overrides the browser's own attempt to scroll a focused
+   field out from under the on-screen keyboard. Stand down while typing. */
+html.editing {
+  scroll-snap-type: none;
+}
+
 body {
   font-family: var(--font-body);
 }

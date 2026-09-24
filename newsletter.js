@@ -8,6 +8,19 @@
   const buttonDefaultText = button.textContent;
   const emailInput = document.getElementById('newsletter-email');
 
+  // The hero is a snap panel, and mandatory snapping fights the browser's own
+  // scroll-into-view when the keyboard covers the field. Release it while typing
+  // and let the browser handle the rest.
+  if (emailInput) {
+    emailInput.addEventListener('focus', () => {
+      document.documentElement.classList.add('editing');
+      setTimeout(() => emailInput.scrollIntoView({ block: 'center' }), 300);
+    });
+    emailInput.addEventListener('blur', () => {
+      document.documentElement.classList.remove('editing');
+    });
+  }
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     error.hidden = true;
