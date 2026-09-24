@@ -4,6 +4,8 @@
   --font-body: 'Roboto Mono', monospace;
   --overlay: rgba(0, 0, 0, 0.25);
   --overlay-strong: rgba(0, 0, 0, 0.35);
+  --arrow-blue: #3a55a8;
+  --arrow-yellow: #f5d64a;
 }
 
 * {
@@ -66,14 +68,14 @@ body {
 
 .title-img {
   display: block;
-  width: clamp(240px, 80vw, 700px);
+  width: clamp(200px, 46vw, 560px);
   max-width: 100%;
   margin: 0 auto;
 }
 
 .salida-img,
 .club-img {
-  width: clamp(120px, 40vw, 220px);
+  width: clamp(100px, 23vw, 180px);
 }
 
 .info {
@@ -117,6 +119,159 @@ body {
     animation: none;
     opacity: 0.7;
   }
+}
+
+/* Newsletter signup */
+.newsletter-poster {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9em;
+  color: #111;
+  background-color: #fbf6e6;
+  border-radius: 10px;
+  padding: 1.4em 1.6em;
+  margin-top: 1.4em;
+  max-width: min(92vw, 620px);
+  box-sizing: border-box;
+}
+
+.newsletter-headline {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: clamp(1.2rem, 4vw, 1.9rem);
+  text-align: center;
+}
+
+.newsletter-body {
+  font-size: clamp(0.75rem, 2vw, 0.95rem);
+  line-height: 1.5;
+  text-align: center;
+  max-width: 640px;
+}
+
+.newsletter-form-wrap {
+  position: relative;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.newsletter-slab[hidden] {
+  display: none;
+}
+
+.newsletter-slab {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 560px;
+  box-sizing: border-box;
+}
+
+.newsletter-slab input[type="email"] {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: #111;
+  background: #fff;
+  border: 1.5px solid #111;
+  border-radius: 4px;
+  padding: 14px 12px;
+}
+
+.newsletter-slab input[type="email"]:focus {
+  outline: 2px solid var(--arrow-blue);
+  outline-offset: 2px;
+}
+
+.newsletter-slab button {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 16px;
+  color: #fff;
+  background: #e0677a;
+  border: 3px solid #111;
+  border-radius: 0;
+  box-shadow: 6px 6px 0 #2a1f3d;
+  min-height: 52px;
+  padding: 0.4em 1.2em;
+  cursor: pointer;
+}
+
+.newsletter-slab button:hover {
+  background: #111;
+  color: #fff;
+}
+
+.newsletter-slab button:active {
+  transform: translate(6px, 6px);
+  box-shadow: none;
+}
+
+.newsletter-slab button:focus-visible {
+  outline: 2px solid var(--arrow-blue);
+  outline-offset: 2px;
+}
+
+.newsletter-slab button:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+@media (min-width: 600px) {
+  .newsletter-slab {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .newsletter-slab input[type="email"] {
+    flex: 1;
+    width: auto;
+  }
+
+  .newsletter-slab button {
+    flex: none;
+    width: auto;
+  }
+}
+
+.newsletter-success[hidden] {
+  display: none;
+}
+
+.newsletter-success {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  background: #fff;
+  border: 3px solid #111;
+  border-radius: 0;
+  padding: 0.7em 1.1em;
+  font-weight: 700;
+  font-size: 0.9rem;
+  max-width: 60vw;
+}
+
+.newsletter-error {
+  color: #b32d2d;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 /* Video feed */
@@ -244,16 +399,15 @@ body {
     padding-right: 0;
   }
 
-  .title-img {
-    width: clamp(200px, 78vw, 400px);
-  }
-
-  .salida-img,
-  .club-img {
-    width: clamp(100px, 38vw, 200px);
-  }
-
   .info {
     font-size: clamp(1rem, 4vw, 1.125rem);
+  }
+
+  .newsletter-poster {
+    padding: 1.2em 1em;
+  }
+
+  .newsletter-body {
+    text-align: left;
   }
 }
