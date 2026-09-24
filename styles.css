@@ -62,50 +62,6 @@ body {
   text-align: center;
 }
 
-/* While the keyboard is up, the hero content stops filling the 100dvh panel and
-   instead tracks the visible strip above the keyboard (both vars set by
-   newsletter.js), so the form stays put no matter how Safari scrolls. */
-.keyboard-open .content {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: var(--vv-height, 100%);
-  transform: translateY(var(--vv-top, 0px));
-  padding-top: 2vh;
-  padding-bottom: 2vh;
-  overflow: hidden;
-}
-
-/* Give the form the room by trimming the hero art. */
-.keyboard-open .scroll-cue {
-  display: none;
-}
-
-.keyboard-open .title-img {
-  width: clamp(140px, 30vw, 560px);
-}
-
-.keyboard-open .salida-img,
-.keyboard-open .club-img {
-  width: clamp(70px, 15vw, 180px);
-}
-
-/* The blurb is the tallest thing competing for the strip above the keyboard;
-   it's already been read by the time the field is focused. */
-.keyboard-open .newsletter-body {
-  display: none;
-}
-
-.keyboard-open .newsletter-poster {
-  margin-top: 0;
-}
-
-/* Snapping fights the browser's attempt to keep the focused field visible. */
-.keyboard-open {
-  scroll-snap-type: none;
-}
-
 .title {
   width: 100%;
 }
